@@ -5,6 +5,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monaco HUD</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -82,20 +83,29 @@
 
                 log('cef found. Registering updateServerHUD listener...');
 
-                cef.on('updateServerHUD', function(hp, armor, money) {
-                    log('Data received | HP:' + hp + ' ARM:' + armor + ' $:' + money);
+                cef.on('updateServerHUD', function(rawData) {
+                    log('Raw data received: ' + rawData);
 
-                    var hpEl = document.getElementById('hp-value');
-                    var armEl = document.getElementById('arm-value');
-                    var moneyEl = document.getElementById('money-value');
+                    try {
+                        // Parse the single JSON payload from PAWN
+                        var data = JSON.parse(rawData);
 
-                    if (hpEl) hpEl.innerText = hp;
-                    if (armEl) armEl.innerText = armor;
-                    if (moneyEl) moneyEl.innerText = money;
+                        var hpEl = document.getElementById('hp-value');
+                        var armEl = document.getElementById('arm-value');
+                        var moneyEl = document.getElementById('money-value');
+
+                        if (hpEl) hpEl.innerText = data.hp || '0';
+                        if (armEl) armEl.innerText = data.armor || '0';
+                        if (moneyEl) moneyEl.innerText = data.money || '0';
+
+                        log('Parsed | HP:' + data.hp + ' ARM:' + data.armor + ' $:' + data.money);
+                    } catch (e) {
+                        log('JSON PARSE ERROR: ' + e.message);
+                    }
                 });
             }
 
-            // 1. Wait for DOM
+            // DOM ready check
             if (document.readyState === 'complete' || document.readyState === 'interactive') {
                 domReady = true;
             } else {
@@ -105,13 +115,12 @@
                 });
             }
 
-            // 2. Poll for cef object (it is injected AFTER page load by the plugin)
+            // Poll for cef API
             function waitForCef() {
                 if (typeof cef !== 'undefined') {
                     cefReady = true;
                     setupListener();
                 } else {
-                    console.log('[MonacoHUD] cef not ready yet, polling...');
                     setTimeout(waitForCef, 150);
                 }
             }
