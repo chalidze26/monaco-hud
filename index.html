@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=windows-1251">
+    <link rel="stylesheet" type="text/css" href="index_files/hud.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+    <link href="index_files/css2.css" rel="stylesheet">    
+</head>
+
+<body>
+    <div class="speed" style="display: none;">
+		<div class="speed-box">
+			<svg width="231" height="201" id="circle" viewBox="0 0 231 201" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<path d="M226.661 115.753C226.661 54.5009 177.006 4.84592 115.753 4.84592C54.5009 4.84592 4.84595 54.5009 4.84595 115.753C4.84595 147.716 18.3664 176.52 40 196.759" stroke="white" stroke-width="10" stroke-linecap="round"></path>
+                <text x="45" y="185" font-size="10" fill="#fff" font-weight="bold">0</text>
+                <text x="25" y="155" font-size="10" fill="#fff" font-weight="bold">40</text>
+                <text x="15" y="115" font-size="10" fill="#fff" font-weight="bold">80</text>
+                <text x="25" y="75" font-size="10" fill="#fff" font-weight="bold">120</text>
+                <text x="55" y="40" font-size="10" fill="#fff" font-weight="bold">160</text>
+                <text x="100" y="25" font-size="10" fill="#fff" font-weight="bold">200</text>
+                <text x="150" y="35" font-size="10" fill="#fff" font-weight="bold">240</text>
+                <text x="185" y="70" font-size="10" fill="#fff" font-weight="bold">280</text>
+                <text x="200" y="115" font-size="10" fill="#fff" font-weight="bold">300</text>
+			</svg>
+			<div class="strelka"></div>
+			<div class="speed-text">044</div>
+			<div class="turn-icon">
+					<div class="turn-left"><img src="index_files/turn.svg" alt="" class="icon"></div>
+					<div class="turn-right"><img src="index_files/turn.svg" alt="" class="icon"></div>
+			</div>
+		</div>
+		<div class="fuel-box">
+			<svg width="125" height="120" id="circle-fuel" viewBox="0 0 250 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<path d="M226.661 115.753C226.661 54.5009 177.006 4.84592 115.753 4.84592C54.5009 4.84592 4.84595 54.5009 4.84595 115.753" stroke="white" stroke-width="10" stroke-linecap="round"></path>
+        		<text x="15" y="120" font-size="14" fill="#fff" font-weight="bold">E</text>
+                <text x="105" y="35" font-size="14" fill="#fff" font-weight="bold">50%</text>
+                <text x="210" y="120" font-size="14" fill="#fff" font-weight="bold">F</text>
+			</svg>
+			<div class="fuel"></div>
+		</div>	
+
+		<div class="icon-speed">
+			<img src="index_files/engine.svg" class="icon-engine icon">
+			<img src="index_files/lock.svg" class="icon-lock icon">
+			<img src="index_files/lights.svg" class="icon-lights icon">
+		</div>
+	</div>
+
+    <div class="box" id="hud-container" style="display: block;">
+        <div class="logoName">
+            <div class="time_date">
+                <img src="index_files/time.png" alt="" class="margin-right: 10px;" width="20px">
+                <div class="block">
+                    <div id="time" class="time">16:19</div>
+                    <div id="date" class="date">03.03.2023</div>
+                </div>
+                <img src="index_files/Luxury.png" class="logo" alt="" width="50px">
+                <div class="block">
+                    <div class="serverName">MONACO</div>
+                    <div class="rolePlay">LIFE</div>
+                </div>
+            </div>
+            <div class="fist">
+                <img id="weapon" class="img_fist" src="index_files/0.png" alt="" width="55px">
+                <div class="block progresss">
+                    <div class="progress-bar">
+                        <progress id="hp_progress" value="30" max="100"></progress>
+                        <img class="img" src="index_files/health.png" alt="" width="16px">
+                    </div>                
+                    <div class="progress-bar">
+                        <progress id="armour_progress" class="armour" value="30" max="100"></progress>
+                        <img class="img" src="index_files/armour.png" alt="" width="16px">
+                    </div>   
+                    <div class="progress-bar">
+                        <progress id="eat_progress" class="eat" value="30" max="100"></progress>
+                        <img class="img" style="margin-left: 11.5px;" src="index_files/eat.png" alt="" width="14px">
+                    </div>                    
+                    <div class="progress-bar" id="breath-zone" style="display: none;">
+                        <progress id="breath_progress" class="breath" value="30" max="100"></progress>
+                        <img class="img" style="margin-left: 11.5px;" src="index_files/breath.png" alt="" width="14px">
+                    </div>                           
+                </div>                  
+            </div>
+
+			<div class="moneyClass">
+				<div class="money" id="money">1 000 000</div>
+                <img src="index_files/green_ruble.png" class="logoRub" width="18px">
+			</div>
+        </div>
+    </div>
+
+    <script>
+        const arrowSpeed = document.getElementsByClassName('strelka')[0];
+        const speedValue = document.getElementsByClassName('speed-text')[0];
+        const zeroLength = 3;
+
+        function updateSpeed(speed) {
+            if (arrowSpeed) arrowSpeed.style = `transform: rotate(${58 + (speed / 1.75)}deg);`;
+            if (speedValue) speedValue.innerHTML = speed.toString().padStart(zeroLength, '0');
+        }
+
+        function updateFuel(fuel) {
+            const fuelElement = document.getElementsByClassName("fuel")[0];
+            if (fuelElement) fuelElement.style = `transform: rotate(${85 + (fuel * 5)}deg);`;
+        }
+
+        // Date and Time loop
+        setInterval(function() {
+            var d = new Date();
+            var month = d.getMonth() + 1;
+            const timeEl = document.getElementById("time");
+            const dateEl = document.getElementById("date");
+            if (timeEl) timeEl.innerText = `${d.getHours().toString().padStart(2, '0') + ":" + d.getMinutes().toString().padStart(2, '0')}`;
+            if (dateEl) dateEl.innerText = `${d.getDate().toString().padStart(2, '0')}.${month.toString().padStart(2, '0')}.${d.getFullYear()}`;
+        }, 1000);   
+
+        // Tell the native client to start sending game data directly
+        
+        cef.on("game:data:playerStats", (hp, max_hp, arm, breath, wanted, weapon, ammo, max_ammo, money, speed) => {
+    // Force health and armor values straight from the server arguments
+    if (document.getElementById('hp_progress')) {
+        document.getElementById('hp_progress').value = Number(hp);
+    }
+    if (document.getElementById('armour_progress')) {
+        document.getElementById('armour_progress').value = Number(arm);
+    }
+    
+    // Force money value straight from the server argument
+    if (document.getElementById("money")) {
+        let safeMoney = Number(money);
+        document.getElementById("money").innerText = safeMoney.toLocaleString('ru');
+    }
+
+    // 3. Update speed
+    if (typeof updateSpeed === "function") {
+        updateSpeed(Math.round(speed || 0));
+    }
+
+    // 4. Weapon checking with an absolute safety guard
+    try {
+        const ammoEl = document.getElementById("ammo");
+        const weaponEl = document.getElementById("weapon");
+        
+        if (weapon > 0) {
+            if (ammoEl) {
+                ammoEl.style.display = "block";
+                ammoEl.innerText = `${ammo || 0} / ${max_ammo || 0}`;
+            }
+            if (weaponEl) weaponEl.src = `index_files/guns/${weapon}.png`;
+            } 
+            else {
+                if (ammoEl) ammoEl.style.display = "none";
+                if (weaponEl) weaponEl.src = "index_files/0.png";
+            }
+        } catch (e) {
+            console.error("Weapon update ignored an error.");
+        }
+
+        // 5. Breath zone
+        if (breath > 0) {
+            if (document.getElementById("breath-zone")) document.getElementById("breath-zone").style.display = "block";
+            if (document.getElementById('breath_progress')) document.getElementById('breath_progress').value = breath;
+        } 
+        else {
+            if (document.getElementById("breath-zone")) document.getElementById("breath-zone").style.display = "none";
+        }
+    });
+
+        // Custom server triggers
+        cef.on("hide-hud", () => {
+            if (document.getElementById("hud-container")) document.getElementById("hud-container").style.display = "none";
+        });        
+
+        cef.on("update-eat", (eat) => {
+            if (document.getElementById('eat_progress')) document.getElementById('eat_progress').value = `${eat}`;     
+        });        
+
+        cef.on("update-speed-icon", (icon, value) => {
+            let opacity = (value === 0) ? 0.5 : 1;
+            let targetClass = (icon === 1) ? "icon-engine" : (icon === 2) ? "icon-lock" : (icon === 3) ? "icon-lights" : null;
+            if (targetClass && document.getElementsByClassName(targetClass)[0]) {
+                document.getElementsByClassName(targetClass)[0].style.opacity = opacity;
+            }
+        });
+
+        cef.on("update-speed-fuel", (fuel) => {
+            updateFuel(fuel);
+        }); 
+
+        cef.on("update-speed-turn", (type, value) => {
+            let opacity = (value === 0) ? 0.5 : 1;
+            let targetClass = (type === 1) ? "turn-left" : (type === 2) ? "turn-right" : null;
+            if (targetClass && document.getElementsByClassName(targetClass)[0]) {
+                document.getElementsByClassName(targetClass)[0].style.opacity = opacity;
+            }
+        });        
+
+        cef.on("show-speed", () => {
+            if (document.getElementsByClassName("speed")[0]) document.getElementsByClassName("speed")[0].style.display = "block";
+        });
+        cef.on("hide-speed", () => {
+            if (document.getElementsByClassName("speed")[0]) document.getElementsByClassName("speed")[0].style.display = "none";
+        });  
+        cef.on("speedhud", (show) => {
+            const speedZone = document.getElementsByClassName("speed")[0];
+            if (speedZone) {
+                if (show === 1) speedZone.style.display = "block";
+                if (show === 2) speedZone.style.display = "none";
+            }
+        });
+
+        // A brand new, custom event that you control 100% from your Pawn script
+        cef.on("updateServerHUD", (hp, arm, money) => {
+            let cleanHp = parseFloat(hp) || 0;
+            let cleanArm = parseFloat(arm) || 0;
+            let cleanMoney = parseInt(money) || 0;
+
+            if (document.getElementById('hp_progress')) {
+                document.getElementById('hp_progress').value = cleanHp;
+            }
+            if (document.getElementById('armour_progress')) {
+                document.getElementById('armour_progress').value = cleanArm;
+            }
+            if (document.getElementById("money")) {
+                document.getElementById("money").innerText = cleanMoney.toLocaleString('ru');
+            }
+        });
+      
+        
+    </script>
+
+
+</body></html>
