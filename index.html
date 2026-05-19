@@ -7,100 +7,114 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Arial', sans-serif;
             overflow: hidden;
             background: transparent;
             width: 100vw;
             height: 100vh;
             user-select: none;
         }
-        .hud-container {
+        .hud-box {
             position: absolute;
-            bottom: 20px;
-            left: 20px;
+            top: 20px;
+            right: 20px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            align-items: flex-end;
+            gap: 4px;
         }
-        .hud-item {
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(4px);
-            border-left: 3px solid #00d4ff;
-            padding: 8px 14px;
-            border-radius: 0 6px 6px 0;
+        .hud-line {
+            background: rgba(0, 0, 0, 0.55);
+            padding: 4px 10px;
+            border-radius: 4px;
             color: #fff;
-            font-size: 14px;
-            font-weight: 600;
-            min-width: 140px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            font-size: 13px;
+            font-weight: bold;
+            text-shadow: 1px 1px 0 #000;
+            min-width: 120px;
+            text-align: right;
         }
-        .hud-label { color: #aaa; font-size: 11px; text-transform: uppercase; }
-        .hud-value { color: #fff; font-size: 14px; }
-        #money-value { color: #00ff88; }
-        #hp-value { color: #ff4444; }
-        #arm-value { color: #4488ff; }
+        .hud-label {
+            color: #ccc;
+            font-size: 10px;
+            text-transform: uppercase;
+            margin-right: 6px;
+        }
+        #hp-value { color: #ff5555; }
+        #arm-value { color: #55aaff; }
+        #money-value { color: #55ff77; }
     </style>
 </head>
 <body>
 
-    <div class="hud-container">
-        <div class="hud-item">
-            <span class="hud-label">Health</span>
-            <span class="hud-value" id="hp-value">0</span>
+    <div class="hud-box">
+        <div class="hud-line">
+            <span class="hud-label">HP</span>
+            <span id="hp-value">0</span>
         </div>
-        <div class="hud-item">
-            <span class="hud-label">Armor</span>
-            <span class="hud-value" id="arm-value">0</span>
+        <div class="hud-line">
+            <span class="hud-label">ARM</span>
+            <span id="arm-value">0</span>
         </div>
-        <div class="hud-item">
-            <span class="hud-label">Cash</span>
-            <span class="hud-value" id="money-value">$0</span>
+        <div class="hud-line">
+            <span class="hud-label">$</span>
+            <span id="money-value">0</span>
         </div>
     </div>
 
     <script>
-        // Debug helper — logs to the CEF console (visible if you enable CEF dev tools)
-        function cefLog(msg) {
-            if (typeof cef !== 'undefined' && cef.log) {
-                cef.log('[MonacoHUD] ' + msg);
+        (function() {
+            var domReady = false;
+            var cefReady = false;
+
+            function log(msg) {
+                if (typeof cef !== 'undefined' && cef.log) {
+                    cef.log('[MonacoHUD] ' + msg);
+                } else {
+                    console.log('[MonacoHUD] ' + msg);
+                }
+            }
+
+            function setupListener() {
+                if (!domReady || !cefReady) return;
+
+                log('cef found. Registering updateServerHUD listener...');
+
+                cef.on('updateServerHUD', function(hp, armor, money) {
+                    log('Data received | HP:' + hp + ' ARM:' + armor + ' $:' + money);
+
+                    var hpEl = document.getElementById('hp-value');
+                    var armEl = document.getElementById('arm-value');
+                    var moneyEl = document.getElementById('money-value');
+
+                    if (hpEl) hpEl.innerText = hp;
+                    if (armEl) armEl.innerText = armor;
+                    if (moneyEl) moneyEl.innerText = money;
+                });
+            }
+
+            // 1. Wait for DOM
+            if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                domReady = true;
             } else {
-                console.log('[MonacoHUD] ' + msg);
-            }
-        }
-
-        // Wait for DOM to be fully parsed
-        document.addEventListener('DOMContentLoaded', function() {
-            cefLog('DOM loaded. Setting up CEF event listeners...');
-
-            // Make sure the CEF API is available
-            if (typeof cef === 'undefined') {
-                cefLog('ERROR: cef object is undefined! Are you running this inside SA-MP CEF?');
-                return;
+                document.addEventListener('DOMContentLoaded', function() {
+                    domReady = true;
+                    setupListener();
+                });
             }
 
-            // ============================================================
-            // THIS IS THE CRITICAL FIX — listen via cef.on(), NOT addEventListener
-            // ============================================================
-            cef.on('updateServerHUD', function(hp, armor, money) {
-                // Update DOM elements safely
-                var hpEl = document.getElementById('hp-value');
-                var armEl = document.getElementById('arm-value');
-                var moneyEl = document.getElementById('money-value');
-
-                if (hpEl) hpEl.innerText = hp;
-                if (armEl) armEl.innerText = armor;
-                if (moneyEl) moneyEl.innerText = '$' + money;
-            });
-
-            // Optional: tell PAWN we are ready to receive data
-            // (Uncomment the next line if your PAWN uses a ready-handshake system)
-            // cef.emit('hudReady');
-
-            cefLog('Event listener registered successfully.');
-        });
+            // 2. Poll for cef object (it is injected AFTER page load by the plugin)
+            function waitForCef() {
+                if (typeof cef !== 'undefined') {
+                    cefReady = true;
+                    setupListener();
+                } else {
+                    console.log('[MonacoHUD] cef not ready yet, polling...');
+                    setTimeout(waitForCef, 150);
+                }
+            }
+            waitForCef();
+        })();
     </script>
 </body>
 </html>
